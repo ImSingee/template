@@ -83,12 +83,21 @@ func (fs FunctionSet) registerFunction(name string, f interface{}) error {
 
 	argsCount := ff.NumIn()
 	args := make([]argument, argsCount)
+	function.ArgsNumber = argsCount
 	for i := range args {
 		arg := ff.In(i)
 
 		args[i].Name = arg.Name()
 		args[i].OutType = arg.Kind()
-		args[i].InType = dt.MapReflectType(arg.Kind())
+
+		if arg.AssignableTo(contextType) {
+			args[i].IsContext = true
+			function.ArgsNumber -= 1
+		} else {
+			args[i].IsContext = false
+			args[i].InType = dt.MapReflectType(arg.Kind())
+		}
+
 	}
 	function.Args = args
 
@@ -101,7 +110,7 @@ func (fs FunctionSet) registerFunction(name string, f interface{}) error {
 // funcName: 函数名
 // args：函数参数
 // greedy：如果找到了函数但调用返回错误是否继续尝试其他函数
-func (fs FunctionSet) callFunction(funcName string, args []dt.Value, greedy bool) (interface{}, error) {
+func (fs FunctionSet) callFunction(funcName string, args []dt.Value, callerCtx *Context) (interface{}, error) {
 	funcs := fs[funcName]
 	if len(funcs) == 0 {
 		return nil, errNoFunction
@@ -109,7 +118,7 @@ func (fs FunctionSet) callFunction(funcName string, args []dt.Value, greedy bool
 
 	var latestError ErrArgsNotMatch
 	for _, f := range funcs {
-		inArgs, err := f.Apply(args)
+		inArgs, err := f.Apply(args, callerCtx)
 		if err != nil {
 			latestError = ErrArgsNotMatch{err}
 			continue
@@ -121,7 +130,7 @@ func (fs FunctionSet) callFunction(funcName string, args []dt.Value, greedy bool
 		if f.MayBeError {
 			err := result[1].Elem()
 			if !err.IsNil() {
-				if greedy {
+				if callerCtx.Option.Greedy {
 					continue
 				}
 

@@ -20,6 +20,8 @@ type Context struct {
 	functionSets []FunctionSet
 }
 
+var contextType = reflect.TypeOf(&DefaultContext)
+
 func NewContext() Context {
 	return Context{
 		values: make(map[string]interface{}, 8),
@@ -96,7 +98,7 @@ func (ctx *Context) Execute(source string) (s string, err error) {
 			panic(err)
 		}
 
-		result, err := ctx.callFunction(funcName, args, ctx.Option)
+		result, err := ctx.callFunction(funcName, args, ctx)
 		if err != nil {
 			panic(err)
 		}
@@ -105,13 +107,13 @@ func (ctx *Context) Execute(source string) (s string, err error) {
 	}), nil
 }
 
-func (ctx *Context) callFunction(funcName string, args []dt.Value, option Option) (interface{}, error) {
+func (ctx *Context) callFunction(funcName string, args []dt.Value, callerCtx *Context) (interface{}, error) {
 	functionArgsNotMatchMatchErr := (error)(nil)
 	functionRunError := (error)(nil)
 
 	if len(ctx.functionSets) != 0 {
 		for _, fs := range ctx.functionSets {
-			result, err := fs.callFunction(funcName, args, option.Greedy)
+			result, err := fs.callFunction(funcName, args, callerCtx)
 
 			if err == nil {
 				return result, nil
@@ -128,7 +130,7 @@ func (ctx *Context) callFunction(funcName string, args []dt.Value, option Option
 	}
 
 	if ctx.parent != nil {
-		result, err := ctx.parent.callFunction(funcName, args, option)
+		result, err := ctx.parent.callFunction(funcName, args, callerCtx)
 
 		if err == nil {
 			return result, nil

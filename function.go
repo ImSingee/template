@@ -11,21 +11,28 @@ import (
 type function struct {
 	F          interface{}
 	Args       []argument
+	ArgsNumber int
 	MayBeError bool // 返回值是 error
 }
 
-func (f *function) Apply(args []dt.Value) ([]reflect.Value, error) {
-	if len(args) != len(f.Args) {
+func (f *function) Apply(args []dt.Value, callerCtx *Context) ([]reflect.Value, error) {
+	if len(args) != f.ArgsNumber {
 		return nil, fmt.Errorf("args number mismatch")
 	}
 
-	mappedArgs := make([]reflect.Value, 0, len(args))
-	for i, dtValue := range args {
-		value, ok := dt.ConvertToReflectType(dtValue, f.Args[i].OutType)
-		if !ok {
-			return nil, fmt.Errorf("arg %d's out-type mismatch", i+1)
+	mappedArgs := make([]reflect.Value, 0, len(f.Args))
+	j := 0
+	for i := 0; i < len(f.Args); i++ {
+		if f.Args[i].IsContext {
+			mappedArgs = append(mappedArgs, reflect.ValueOf(callerCtx))
+		} else {
+			value, ok := dt.ConvertToReflectType(args[j], f.Args[i].OutType)
+			if !ok {
+				return nil, fmt.Errorf("arg %d's out-type mismatch", i+1)
+			}
+			mappedArgs = append(mappedArgs, value)
+			j += 1
 		}
-		mappedArgs = append(mappedArgs, value)
 	}
 
 	return mappedArgs, nil
@@ -33,6 +40,8 @@ func (f *function) Apply(args []dt.Value) ([]reflect.Value, error) {
 
 type argument struct {
 	Name string
+
+	IsContext bool // 应注入当前 Context
 
 	InType  dt.Type      // 用户字面书写的转换后参数类型，支持 string, bool, *GenericNumber
 	OutType reflect.Kind // 函数原型参数类型，支持 string, bool, int[X], uint[X]
