@@ -1,2 +1,6 @@
+github.com/ImSingee/dt v1.0.0 h1:4B6RAXH6SXihaSwuwnT4hd4hCMHkjschb+xej8T4iUY=
+github.com/ImSingee/dt v1.0.0/go.mod h1:gMjOpmXZ9S/YQI2+VoB1aK/p71J2HkIqSrHC2n2qoSM=
+github.com/ImSingee/mock v1.0.0 h1:E1JYGzMVUWfxpUOH1X7CClEXBEjCOFUzfRmiGhp29Ww=
+github.com/ImSingee/mock v1.0.0/go.mod h1:4kqHKIfV3oMVM4+0VeD/b2zzpYk4AslUgbo5F7eDcI4=
 github.com/ImSingee/tt v1.0.2 h1:t6EWUfy6rB9fuBH3U4OaYcZ17hKa4TbYU211jCnD9fA=
 github.com/ImSingee/tt v1.0.2/go.mod h1:7O7v+cIBruYWGFObw85DDjH0gNLquen1cJqMR3GOgxw=
