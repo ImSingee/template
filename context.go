@@ -15,15 +15,23 @@ var re = regexp.MustCompile(`@(@|(?P<call>(?P<function>[a-zA-Z0-9\-_]+)(?P<args>
 type Context struct {
 	Option Option
 
+	values       map[string]interface{}
 	parent       *Context
 	functionSets []FunctionSet
 }
 
-func (ctx *Context) With(functionSets ...FunctionSet) Context {
+func NewContext() Context {
 	return Context{
-		parent:       ctx,
-		functionSets: functionSets,
+		values: make(map[string]interface{}, 8),
 	}
+}
+
+func (ctx *Context) With(functionSets ...FunctionSet) Context {
+	c := NewContext()
+	c.parent = ctx
+	c.functionSets = functionSets
+
+	return c
 }
 
 func (ctx *Context) AddFunctionSet(functionSet FunctionSet) {

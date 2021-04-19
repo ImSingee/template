@@ -5,12 +5,8 @@ import (
 	"testing"
 )
 
-func newContext() Context {
-	return Context{}
-}
-
 func TestWith(t *testing.T) {
-	ctx := newContext()
+	ctx := NewContext()
 
 	_, err := ctx.Execute("@test()")
 	tt.AssertIsNotNil(t, err)

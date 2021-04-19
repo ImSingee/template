@@ -5,7 +5,8 @@ var DefaultContext Context
 
 func init() {
 	DefaultFunctionSet = NewFunctionSet()
-	DefaultContext = Context{functionSets: []FunctionSet{DefaultFunctionSet}}
+	DefaultContext = NewContext()
+	DefaultContext.AddFunctionSet(DefaultFunctionSet)
 }
 
 func With(functionSets ...FunctionSet) Context {
