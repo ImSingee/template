@@ -12,7 +12,6 @@ import (
 
 func init() {
 	random.MustRegister(DefaultFunctionSet.MustRegisterFunction)
-	fmt.Println(DefaultFunctionSet)
 }
 
 func TestExecute(t *testing.T) {

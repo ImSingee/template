@@ -38,6 +38,23 @@ func (ctx *Context) AddFunctionSet(functionSet FunctionSet) {
 	ctx.functionSets = append(ctx.functionSets, functionSet)
 }
 
+func (ctx *Context) SetValue(key string, value interface{}) {
+	ctx.values[key] = value
+}
+
+func (ctx *Context) GetValue(key string) interface{} {
+	value, ok := ctx.values[key]
+	if ok {
+		return value
+	}
+
+	if ctx.parent != nil {
+		return ctx.parent.GetValue(key)
+	} else {
+		return nil
+	}
+}
+
 func (ctx *Context) Execute(source string) (s string, err error) {
 	defer func() {
 		e := recover()
