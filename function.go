@@ -5,6 +5,7 @@ import (
 	"github.com/ImSingee/dt"
 	"go/ast"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -83,11 +84,9 @@ func mapArg(arg string) (interface{}, error) {
 
 	// 字面值量 (*ast.BasicLit) <- number, string
 
-	if strings.HasPrefix(arg, `'`) || strings.HasPrefix(arg, `"`) {
-		if !strings.HasPrefix(arg, `'`) && !strings.HasPrefix(arg, `"`) {
-			return nil, fmt.Errorf("invalid literal")
-		}
-		return arg[1 : len(arg)-1], nil
+	if strings.HasPrefix(arg, `'`) || strings.HasPrefix(arg, `"`) || strings.HasPrefix(arg, "`") {
+		// 字符串（或字符）
+		return strconv.Unquote(arg)
 	}
 
 	if num, ok := dt.NumberFromString(arg); ok {
